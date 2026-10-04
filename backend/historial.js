@@ -62,6 +62,7 @@ function construirTexto(fecha, negocio) {
   L.push(`mAP@50: ${formatearPct(METRICAS_MODELO.mAP)}`);
   L.push(`Precision: ${formatearPct(METRICAS_MODELO.precision)}`);
   L.push(`Recall: ${formatearPct(METRICAS_MODELO.recall)}`);
+  L.push(`F1: ${formatearPct(METRICAS_MODELO.f1)}`);
   if (METRICAS_MODELO.imagenesEntrenamiento) {
     L.push(`Imágenes de entrenamiento: ${METRICAS_MODELO.imagenesEntrenamiento}`);
   }

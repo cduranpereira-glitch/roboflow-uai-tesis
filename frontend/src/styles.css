@@ -252,6 +252,14 @@ body {
   gap: 12px;
   margin-top: 14px;
 }
+.metricas-grid-4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 520px) {
+  .metricas-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
 .metrica {
   display: flex;
   flex-direction: column;

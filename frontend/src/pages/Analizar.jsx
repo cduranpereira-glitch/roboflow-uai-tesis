@@ -218,10 +218,11 @@ function Resultado({ datos, foto, onRepetir }) {
         <p className="dato">
           <strong>Modelo:</strong> {tecnico.nombreModelo} (v{tecnico.version})
         </p>
-        <div className="metricas-grid">
+        <div className="metricas-grid metricas-grid-4">
           <Metrica etiqueta="mAP@50" valor={tecnico.mAP} />
           <Metrica etiqueta="Precision" valor={tecnico.precision} />
           <Metrica etiqueta="Recall" valor={tecnico.recall} />
+          <Metrica etiqueta="F1" valor={tecnico.f1} />
         </div>
         <p className="nota-tecnica">
           Las métricas del modelo son fijas: corresponden a la evaluación del

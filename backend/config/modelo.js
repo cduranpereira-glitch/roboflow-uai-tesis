@@ -25,12 +25,13 @@ export const ROBOFLOW = {
 export const METRICAS_MODELO = {
   nombreModelo: "YOLOv12s (yolo12s)",
   version: "7",
-  // Reemplazar por los valores reales (en porcentaje 0-100):
-  mAP: null, // ej: 89.4
-  precision: null, // ej: 91.2
-  recall: null, // ej: 85.7
+  // Métricas de evaluación sobre el Test Set (en porcentaje 0-100):
+  mAP: 88.9, // mAP@50
+  precision: 90.6,
+  recall: 84.5,
+  f1: 87.2,
   // Opcional: fecha de entrenamiento, nº de imágenes, etc.
-  imagenesEntrenamiento: null, // ej: 1200
+  imagenesEntrenamiento: null,
   notas:
-    "Valores de evaluación del modelo entrenado en Roboflow. Pendiente de completar con las métricas reales.",
+    "Métricas de evaluación del modelo entrenado en Roboflow (Test Set).",
 };

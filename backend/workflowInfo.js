@@ -35,6 +35,24 @@ function buscarModeloId(steps = []) {
   return null;
 }
 
+// Lee los parámetros de inferencia (confidence, iou, ...) desde los inputs
+// del (sub)workflow, que es donde viven sus valores por defecto.
+function leerParametros(steps = [], inputs = []) {
+  const params = {};
+  for (const inp of inputs) {
+    if (inp?.name && "default_value" in inp && inp.type === "WorkflowParameter") {
+      params[inp.name] = inp.default_value;
+    }
+  }
+  return params;
+}
+
+async function getWorkflowConfig(ws, id, key) {
+  const r = await fetch(`https://api.roboflow.com/${ws}/workflows/${id}?api_key=${key}`);
+  if (!r.ok) return null;
+  return JSON.parse((await r.json()).workflow.config);
+}
+
 export async function obtenerInfoModelo() {
   const ahora = Date.now();
   if (cache.info && ahora - cache.ts < TTL_MS) return cache.info;
@@ -43,20 +61,34 @@ export async function obtenerInfoModelo() {
     modeloId: null,
     arquitectura: null,
     version: null,
+    parametros: null, // confidence, iou, max_detections, ...
     fuente: "no disponible",
   };
 
   const key = process.env.ROBOFLOW_API_KEY;
   if (key) {
     try {
-      const url = `https://api.roboflow.com/${ROBOFLOW.workspace}/workflows/${ROBOFLOW.workflowId}?api_key=${key}`;
-      const r = await fetch(url);
-      if (r.ok) {
-        const cfg = JSON.parse((await r.json()).workflow.config);
-        const modeloId = buscarModeloId(cfg?.specification?.steps);
+      const cfg = await getWorkflowConfig(ROBOFLOW.workspace, ROBOFLOW.workflowId, key);
+      if (cfg) {
+        const steps = cfg?.specification?.steps || [];
+        const modeloId = buscarModeloId(steps);
         if (modeloId) {
           Object.assign(info, { modeloId, ...interpretar(modeloId), fuente: "Roboflow" });
         }
+        // Parámetros: pueden estar en este workflow o en un sub-workflow interno.
+        let params = leerParametros(steps, cfg?.specification?.inputs);
+        const interno = steps.find((s) => s.workflow_id);
+        if (interno?.workflow_id) {
+          const cfgInt = await getWorkflowConfig(ROBOFLOW.workspace, interno.workflow_id, key);
+          if (cfgInt) {
+            params = { ...leerParametros([], cfgInt?.specification?.inputs), ...params };
+            if (!info.modeloId) {
+              const idInt = buscarModeloId(cfgInt?.specification?.steps);
+              if (idInt) Object.assign(info, { modeloId: idInt, ...interpretar(idInt), fuente: "Roboflow" });
+            }
+          }
+        }
+        if (Object.keys(params).length) info.parametros = params;
       }
     } catch {
       // Si falla, devolvemos info vacía; el front muestra el fallback.

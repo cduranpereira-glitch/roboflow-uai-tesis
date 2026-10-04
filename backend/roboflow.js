@@ -33,10 +33,26 @@ export async function correrWorkflow(imagenBase64) {
     },
   });
 
+  // Metadatos del request, útiles para el panel de debug (sin el base64 crudo).
+  const meta = {
+    url,
+    inputsEnviados: {
+      image: { type: "base64", value: `<base64 de ${imagenBase64.length} chars>` },
+    },
+    imagen: {
+      base64Chars: imagenBase64.length,
+      bytesAprox: Math.round((imagenBase64.length * 3) / 4),
+    },
+    httpStatus: null,
+    duracionMs: null,
+    intentos: 0,
+  };
+
   let ultimoError;
   for (let intento = 0; intento <= MAX_REINTENTOS; intento++) {
     const controlador = new AbortController();
     const temporizador = setTimeout(() => controlador.abort(), TIMEOUT_MS);
+    const t0 = Date.now();
     try {
       const resp = await fetch(url, {
         method: "POST",
@@ -45,6 +61,9 @@ export async function correrWorkflow(imagenBase64) {
         signal: controlador.signal,
       });
       clearTimeout(temporizador);
+      meta.httpStatus = resp.status;
+      meta.duracionMs = Date.now() - t0;
+      meta.intentos = intento + 1;
 
       if (!resp.ok) {
         const texto = await resp.text().catch(() => "");
@@ -53,6 +72,7 @@ export async function correrWorkflow(imagenBase64) {
         );
         err.tipo = "roboflow";
         err.status = resp.status;
+        err.cuerpoCrudo = texto; // para el debug
         // 4xx (salvo 429) no se reintenta: es un problema de la petición
         if (resp.status >= 400 && resp.status < 500 && resp.status !== 429) {
           throw err;
@@ -66,7 +86,7 @@ export async function correrWorkflow(imagenBase64) {
           : Array.isArray(datos)
           ? datos
           : [datos];
-        return salidas[0] ?? {};
+        return { salida: salidas[0] ?? {}, respuestaCompleta: datos, meta };
       }
     } catch (e) {
       clearTimeout(temporizador);

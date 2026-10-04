@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { analizarImagen } from "../api.js";
+import { useDebug } from "../debug.jsx";
 
 export default function Analizar() {
   const videoRef = useRef(null);
@@ -11,6 +12,7 @@ export default function Analizar() {
   const [cargando, setCargando] = useState(false);
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
+  const { agregar } = useDebug();
 
   // Enciende la cámara trasera (ideal para fotografiar la pieza).
   async function iniciarCamara() {
@@ -84,8 +86,10 @@ export default function Analizar() {
     try {
       const datos = await analizarImagen(foto);
       setResultado(datos);
+      agregar({ tipo: "ok", debug: datos.debug });
     } catch (e) {
       setError(e.message);
+      agregar({ tipo: "error", error: e.message });
     } finally {
       setCargando(false);
     }

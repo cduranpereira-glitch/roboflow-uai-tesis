@@ -9,6 +9,7 @@ import { resumirNegocio } from "./parser.js";
 import { guardarAnalisis, listarAnalisis, leerAnalisis } from "./historial.js";
 import { METRICAS_MODELO } from "./config/modelo.js";
 import { obtenerInfoModelo } from "./workflowInfo.js";
+import { DEBUG } from "./config/debug.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -20,7 +21,11 @@ app.use(express.json({ limit: "25mb" }));
 
 // Salud del servidor
 app.get("/api/salud", (req, res) => {
-  res.json({ ok: true, apiKeyConfigurada: Boolean(process.env.ROBOFLOW_API_KEY) });
+  res.json({
+    ok: true,
+    apiKeyConfigurada: Boolean(process.env.ROBOFLOW_API_KEY),
+    debug: DEBUG,
+  });
 });
 
 // Métricas fijas del modelo + modelo dinámico (para la sección técnica del front)
@@ -44,7 +49,7 @@ app.post("/api/analizar", async (req, res) => {
       imagenBase64 = imagenBase64.slice(coma + 1);
     }
 
-    const salida = await correrWorkflow(imagenBase64);
+    const { salida, respuestaCompleta, meta } = await correrWorkflow(imagenBase64);
     const negocio = resumirNegocio(salida);
 
     // Modelo con el que se evaluó (dinámico, leído del workflow en Roboflow)
@@ -53,12 +58,39 @@ app.post("/api/analizar", async (req, res) => {
 
     const guardado = await guardarAnalisis(negocio, tecnico);
 
-    res.json({
+    const respuesta = {
       negocio,
       tecnico,
       archivo: guardado.nombre,
       fecha: guardado.fecha,
-    });
+    };
+
+    // Panel de debug: TODO lo que entró y salió del workflow.
+    if (DEBUG) {
+      respuesta.debug = {
+        entrada: {
+          endpoint: meta.url,
+          modelo: modelo, // id dinámico + parámetros (confianza, iou, ...)
+          imagen: meta.imagen,
+          inputsEnviados: meta.inputsEnviados,
+        },
+        salida: {
+          httpStatus: meta.httpStatus,
+          duracionMs: meta.duracionMs,
+          intentos: meta.intentos,
+          respuestaCompleta, // respuesta CRUDA de Roboflow (outputs + profiler_trace)
+        },
+        parseado: {
+          dañada: negocio.dañada,
+          cantidadDanos: negocio.cantidadDanos,
+          tiposDeDano: negocio.tiposDeDano,
+          clavesSalida: negocio.clavesSalida,
+          detalles: negocio.detalles,
+        },
+      };
+    }
+
+    res.json(respuesta);
   } catch (e) {
     console.error("Error en /api/analizar:", e);
     const status = e.tipo === "config" ? 500 : e.tipo === "roboflow" ? 502 : 500;

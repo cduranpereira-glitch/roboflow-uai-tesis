@@ -15,19 +15,18 @@ function esDeteccion(obj) {
 }
 
 // Busca recursivamente todas las detecciones dentro de la respuesta.
+// La respuesta real del workflow anida las detecciones en:
+//   salida.predictions.predictions = [ {class, confidence, x, y, ...}, ... ]
+// así que recorremos TODO el árbol y recogemos cualquier objeto que parezca
+// una detección.
 function buscarDetecciones(valor, acum = []) {
   if (Array.isArray(valor)) {
-    if (valor.length && esDeteccion(valor[0])) {
-      for (const d of valor) if (esDeteccion(d)) acum.push(d);
-    } else {
-      for (const item of valor) buscarDetecciones(item, acum);
+    for (const item of valor) {
+      if (esDeteccion(item)) acum.push(item);
+      else buscarDetecciones(item, acum);
     }
   } else if (valor && typeof valor === "object") {
-    if (Array.isArray(valor.predictions)) {
-      buscarDetecciones(valor.predictions, acum);
-    }
     for (const k of Object.keys(valor)) {
-      if (k === "predictions") continue;
       buscarDetecciones(valor[k], acum);
     }
   }

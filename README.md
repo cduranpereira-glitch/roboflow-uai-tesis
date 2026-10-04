@@ -110,7 +110,13 @@ listo; la idea general:
 
 ## Pendiente / notas
 
-- Las **métricas del modelo** son fijas (evaluación del entrenamiento), no de
-  cada foto. La **confianza** sí es por detección.
-- El **parser** de la respuesta de Roboflow es defensivo; se afinará a los
-  nombres reales de las salidas del workflow al correr la primera foto real.
+- Las **métricas del modelo** (mAP, precision, recall, F1) son fijas
+  (evaluación del entrenamiento), no de cada foto. La **confianza** sí es por
+  detección.
+- El **modelo con el que se evalúa** se lee de forma **dinámica** desde la
+  definición del workflow en Roboflow (ver [backend/workflowInfo.js](backend/workflowInfo.js)),
+  así que si cambias el modelo en el workflow, la app lo refleja sin tocar
+  código. Modelo actual: `capstone-mia/deteccion-de-danos-en-repuestos-automotrices-7-yolo12s-t5`.
+- El **parser** fue verificado contra la salida real del workflow
+  (`outputs[0].predictions.predictions`): los resultados del análisis son esas
+  detecciones reales (clase = tipo de daño, confianza y ubicación).

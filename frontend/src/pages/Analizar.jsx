@@ -216,7 +216,18 @@ function Resultado({ datos, foto, onRepetir }) {
       <section className="seccion seccion-tecnica">
         <h3 className="seccion-titulo">Resultado técnico (modelo ML)</h3>
         <p className="dato">
-          <strong>Modelo:</strong> {tecnico.nombreModelo} (v{tecnico.version})
+          <strong>Modelo con el que se evaluó:</strong>
+          <br />
+          <code className="modelo-id">
+            {tecnico.modelo?.modeloId || `${tecnico.nombreModelo} (v${tecnico.version})`}
+          </code>
+          {tecnico.modelo?.arquitectura && (
+            <span className="modelo-meta">
+              {" "}
+              · {tecnico.modelo.arquitectura}
+              {tecnico.modelo.version ? ` · v${tecnico.modelo.version}` : ""}
+            </span>
+          )}
         </p>
         <div className="metricas-grid metricas-grid-4">
           <Metrica etiqueta="mAP@50" valor={tecnico.mAP} />

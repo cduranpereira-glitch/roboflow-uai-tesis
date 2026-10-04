@@ -8,6 +8,7 @@ import { correrWorkflow } from "./roboflow.js";
 import { resumirNegocio } from "./parser.js";
 import { guardarAnalisis, listarAnalisis, leerAnalisis } from "./historial.js";
 import { METRICAS_MODELO } from "./config/modelo.js";
+import { obtenerInfoModelo } from "./workflowInfo.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -22,9 +23,10 @@ app.get("/api/salud", (req, res) => {
   res.json({ ok: true, apiKeyConfigurada: Boolean(process.env.ROBOFLOW_API_KEY) });
 });
 
-// Métricas fijas del modelo (para la sección técnica del front)
-app.get("/api/metricas", (req, res) => {
-  res.json(METRICAS_MODELO);
+// Métricas fijas del modelo + modelo dinámico (para la sección técnica del front)
+app.get("/api/metricas", async (req, res) => {
+  const modelo = await obtenerInfoModelo();
+  res.json({ ...METRICAS_MODELO, modelo });
 });
 
 // Analizar una imagen
@@ -44,11 +46,16 @@ app.post("/api/analizar", async (req, res) => {
 
     const salida = await correrWorkflow(imagenBase64);
     const negocio = resumirNegocio(salida);
-    const guardado = await guardarAnalisis(negocio);
+
+    // Modelo con el que se evaluó (dinámico, leído del workflow en Roboflow)
+    const modelo = await obtenerInfoModelo();
+    const tecnico = { ...METRICAS_MODELO, modelo };
+
+    const guardado = await guardarAnalisis(negocio, tecnico);
 
     res.json({
       negocio,
-      tecnico: METRICAS_MODELO,
+      tecnico,
       archivo: guardado.nombre,
       fecha: guardado.fecha,
     });

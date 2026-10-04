@@ -30,7 +30,7 @@ function formatearPct(v) {
 }
 
 // Construye el contenido legible del .txt
-function construirTexto(fecha, negocio) {
+function construirTexto(fecha, negocio, tecnico) {
   const L = [];
   L.push("====================================================");
   L.push(" ANÁLISIS DE DAÑOS EN REPUESTOS AUTOMOTRICES");
@@ -58,7 +58,17 @@ function construirTexto(fecha, negocio) {
   }
   L.push("");
   L.push("----- RESULTADO TÉCNICO (MODELO ML) -----");
-  L.push(`Modelo: ${METRICAS_MODELO.nombreModelo} (versión ${METRICAS_MODELO.version})`);
+  const modelo = tecnico?.modelo || {};
+  if (modelo.modeloId) {
+    L.push(`Modelo evaluador (dinámico, desde Roboflow): ${modelo.modeloId}`);
+    if (modelo.arquitectura || modelo.version) {
+      L.push(
+        `  Arquitectura: ${modelo.arquitectura || "s/d"} · Versión: ${modelo.version || "s/d"}`
+      );
+    }
+  } else {
+    L.push(`Modelo: ${METRICAS_MODELO.nombreModelo} (versión ${METRICAS_MODELO.version})`);
+  }
   L.push(`mAP@50: ${formatearPct(METRICAS_MODELO.mAP)}`);
   L.push(`Precision: ${formatearPct(METRICAS_MODELO.precision)}`);
   L.push(`Recall: ${formatearPct(METRICAS_MODELO.recall)}`);
@@ -75,11 +85,11 @@ function construirTexto(fecha, negocio) {
   return L.join("\n");
 }
 
-export async function guardarAnalisis(negocio) {
+export async function guardarAnalisis(negocio, tecnico) {
   await asegurarCarpeta();
   const fecha = new Date();
   const nombre = nombreArchivo(fecha);
-  const texto = construirTexto(fecha, negocio);
+  const texto = construirTexto(fecha, negocio, tecnico);
   await fs.writeFile(path.join(DIR_DATOS, nombre), texto, "utf8");
   return { nombre, fecha: fecha.toISOString(), texto };
 }

@@ -279,6 +279,21 @@ body {
   font-size: 0.8rem;
   color: var(--texto-tenue);
 }
+.modelo-id {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  word-break: break-all;
+  color: var(--texto);
+}
+.modelo-meta {
+  color: var(--texto-tenue);
+  font-size: 0.85rem;
+}
 .nota-tecnica {
   margin: 14px 0 0;
   font-size: 0.82rem;

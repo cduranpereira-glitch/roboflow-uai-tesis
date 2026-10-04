@@ -1,0 +1,16 @@
+{
+  "name": "roboflow-tesis-backend",
+  "version": "1.0.0",
+  "description": "Backend que esconde la API key de Roboflow, corre el workflow y guarda el historial en archivos .txt",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

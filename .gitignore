@@ -1,1 +1,20 @@
+# macOS
 .DS_Store
+
+# Dependencias
+node_modules/
+
+# Variables de entorno / secretos (¡nunca subir la API key!)
+.env
+*.env
+!*.env.example
+
+# Build del frontend
+frontend/dist/
+
+# Historial de análisis (archivos .txt generados en runtime)
+backend/data/analisis/*.txt
+
+# Logs
+*.log
+npm-debug.log*

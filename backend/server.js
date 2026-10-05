@@ -34,6 +34,23 @@ app.get("/api/metricas", async (req, res) => {
   res.json({ ...METRICAS_MODELO, modelo });
 });
 
+// Recorta strings muy largos (p. ej. imágenes base64) para que el panel de
+// debug sea legible y liviano, sin perder la estructura de la respuesta.
+function recortarParaDebug(valor) {
+  if (typeof valor === "string") {
+    return valor.length > 300
+      ? `<string de ${valor.length} chars omitido para el debug>`
+      : valor;
+  }
+  if (Array.isArray(valor)) return valor.map(recortarParaDebug);
+  if (valor && typeof valor === "object") {
+    const out = {};
+    for (const k of Object.keys(valor)) out[k] = recortarParaDebug(valor[k]);
+    return out;
+  }
+  return valor;
+}
+
 // Analizar una imagen
 app.post("/api/analizar", async (req, res) => {
   try {
@@ -78,7 +95,8 @@ app.post("/api/analizar", async (req, res) => {
           httpStatus: meta.httpStatus,
           duracionMs: meta.duracionMs,
           intentos: meta.intentos,
-          respuestaCompleta, // respuesta CRUDA de Roboflow (outputs + profiler_trace)
+          // respuesta CRUDA de Roboflow (con base64 largos recortados)
+          respuestaCompleta: recortarParaDebug(respuestaCompleta),
         },
         parseado: {
           dañada: negocio.dañada,

@@ -89,6 +89,17 @@ export async function obtenerInfoModelo() {
           }
         }
         if (Object.keys(params).length) info.parametros = params;
+
+        // Si no encontramos un model_id literal en los steps, usamos el que
+        // viene como parámetro por defecto (así captamos la nueva estructura
+        // del workflow, donde el modelo se define como default de un input).
+        if (!info.modeloId && typeof params.model_id === "string" && !params.model_id.startsWith("$")) {
+          Object.assign(info, {
+            modeloId: params.model_id,
+            ...interpretar(params.model_id),
+            fuente: "Roboflow (default del workflow)",
+          });
+        }
       }
     } catch {
       // Si falla, devolvemos info vacía; el front muestra el fallback.

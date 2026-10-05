@@ -236,6 +236,13 @@ body {
   margin: 10px 0 0;
   line-height: 1.5;
 }
+.aviso-sin-clase {
+  padding: 10px 12px;
+  background: rgba(234, 179, 8, 0.12);
+  border: 1px solid #a16207;
+  border-radius: 10px;
+  color: #fde68a;
+}
 .lista-detecciones {
   margin: 12px 0 0;
   padding-left: 20px;

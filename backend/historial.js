@@ -39,9 +39,13 @@ function construirTexto(fecha, negocio, tecnico) {
   L.push("");
   L.push("----- RESULTADO DEL NEGOCIO -----");
   L.push(`¿Pieza dañada?: ${negocio.dañada ? "SÍ" : "NO"}`);
-  L.push(`Cantidad de daños detectados: ${negocio.cantidadDanos}`);
-  if (negocio.tiposDeDano.length) {
-    L.push(`Tipos de daño: ${negocio.tiposDeDano.join(", ")}`);
+  if (negocio.dañada && negocio.sinClasificacion) {
+    L.push("Daño detectado, pero sin un tipo de clasificación identificado.");
+  } else {
+    L.push(`Cantidad de daños detectados: ${negocio.cantidadDanos}`);
+    if (negocio.tiposDeDano.length) {
+      L.push(`Tipos de daño: ${negocio.tiposDeDano.join(", ")}`);
+    }
   }
   if (negocio.detalles.length) {
     L.push("");

@@ -183,7 +183,15 @@ function Resultado({ datos, foto, onRepetir }) {
         <div className={`badge ${negocio.dañada ? "badge-dano" : "badge-ok"}`}>
           {negocio.dañada ? "⚠️ Pieza dañada" : "✅ Sin daños detectados"}
         </div>
-        {negocio.dañada && (
+
+        {negocio.dañada && negocio.sinClasificacion && (
+          <p className="dato aviso-sin-clase">
+            Se detectó daño, pero <strong>sin un tipo de clasificación</strong>{" "}
+            identificado.
+          </p>
+        )}
+
+        {negocio.dañada && !negocio.sinClasificacion && (
           <>
             <p className="dato">
               <strong>Cantidad de daños:</strong> {negocio.cantidadDanos}

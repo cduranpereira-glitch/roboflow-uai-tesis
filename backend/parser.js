@@ -78,8 +78,19 @@ export function resumirNegocio(salida) {
     porTipo[it.tipoDano] = (porTipo[it.tipoDano] || 0) + 1;
   }
 
+  // Señal del workflow: output "encontro_dano" (true/false) es la fuente de
+  // verdad de si la pieza está dañada. Si no viniera, caemos a "hay detecciones".
+  const señalDano =
+    typeof salida?.encontro_dano === "boolean" ? salida.encontro_dano : null;
+  const dañada = señalDano != null ? señalDano : items.length > 0;
+
+  // Caso especial: el workflow encontró daño pero no hay objeto/clasificación.
+  const sinClasificacion = dañada && items.length === 0;
+
   return {
-    dañada: items.length > 0,
+    dañada,
+    sinClasificacion,
+    señalDano, // lo que respondió el workflow (true/false/null si no vino)
     cantidadDanos: items.length,
     tiposDeDano: Object.keys(porTipo),
     resumenPorTipo: porTipo,

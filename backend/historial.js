@@ -73,18 +73,20 @@ function construirTexto(fecha, negocio, tecnico) {
   } else {
     L.push(`Modelo: ${METRICAS_MODELO.nombreModelo} (versión ${METRICAS_MODELO.version})`);
   }
-  L.push(`mAP@50: ${formatearPct(METRICAS_MODELO.mAP)}`);
-  L.push(`Precision: ${formatearPct(METRICAS_MODELO.precision)}`);
-  L.push(`Recall: ${formatearPct(METRICAS_MODELO.recall)}`);
-  L.push(`F1: ${formatearPct(METRICAS_MODELO.f1)}`);
-  if (METRICAS_MODELO.imagenesEntrenamiento) {
-    L.push(`Imágenes de entrenamiento: ${METRICAS_MODELO.imagenesEntrenamiento}`);
+  // Métricas: usamos las de 'tecnico' (dinámicas de Roboflow con fallback).
+  const met = tecnico || METRICAS_MODELO;
+  L.push(`mAP@50: ${formatearPct(met.mAP)}`);
+  L.push(`Precision: ${formatearPct(met.precision)}`);
+  L.push(`Recall: ${formatearPct(met.recall)}`);
+  L.push(`F1: ${formatearPct(met.f1)}${met.f1Calculado ? " (calculado de P y R)" : ""}`);
+  if (tecnico?.metricasFuente) {
+    L.push(`Fuente de las métricas: ${tecnico.metricasFuente}`);
   }
   L.push("");
   L.push(
-    "Nota: las métricas del modelo son fijas; corresponden a la evaluación"
+    "Nota: las métricas del modelo corresponden a la evaluación del modelo"
   );
-  L.push("del modelo entrenado en Roboflow, no a esta fotografía en particular.");
+  L.push("entrenado en Roboflow, no a esta fotografía en particular.");
   L.push("====================================================");
   return L.join("\n");
 }

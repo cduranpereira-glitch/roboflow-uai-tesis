@@ -244,8 +244,15 @@ function Resultado({ datos, foto, onRepetir }) {
           <Metrica etiqueta="F1" valor={tecnico.f1} />
         </div>
         <p className="nota-tecnica">
-          Las métricas del modelo son fijas: corresponden a la evaluación del
-          modelo entrenado en Roboflow, no a esta fotografía en particular.
+          Métricas de evaluación del modelo entrenado en Roboflow (no de esta
+          foto en particular).
+          {tecnico.f1Calculado && " El F1 se calcula a partir de Precision y Recall."}
+          {tecnico.metricasFuente && (
+            <>
+              <br />
+              Fuente: {tecnico.metricasFuente}.
+            </>
+          )}
         </p>
       </section>
 

@@ -26,10 +26,26 @@ app.get("/api/salud", (req, res) => {
   });
 });
 
-// Métricas fijas del modelo + modelo dinámico (para la sección técnica del front)
+// Arma la sección técnica: métricas dinámicas de Roboflow con fallback a las
+// fijas del código (config/modelo.js) si Roboflow no las entrega.
+function construirTecnico(modelo) {
+  const m = modelo?.metricas || {};
+  return {
+    ...METRICAS_MODELO,
+    mAP: m.mAP ?? METRICAS_MODELO.mAP,
+    precision: m.precision ?? METRICAS_MODELO.precision,
+    recall: m.recall ?? METRICAS_MODELO.recall,
+    f1: m.f1 ?? METRICAS_MODELO.f1,
+    f1Calculado: Boolean(m.f1Calculado),
+    metricasFuente: m.fuente || "valores fijos del código (fallback)",
+    modelo,
+  };
+}
+
+// Sección técnica (métricas dinámicas + modelo dinámico) para el front
 app.get("/api/metricas", async (req, res) => {
   const modelo = await obtenerInfoModelo();
-  res.json({ ...METRICAS_MODELO, modelo });
+  res.json(construirTecnico(modelo));
 });
 
 // Analizar una imagen
@@ -50,9 +66,9 @@ app.post("/api/analizar", async (req, res) => {
     const { salida } = await correrWorkflow(imagenBase64);
     const negocio = resumirNegocio(salida);
 
-    // Modelo con el que se evaluó (dinámico, leído del workflow en Roboflow)
+    // Modelo con el que se evaluó + métricas (dinámicos desde Roboflow)
     const modelo = await obtenerInfoModelo();
-    const tecnico = { ...METRICAS_MODELO, modelo };
+    const tecnico = construirTecnico(modelo);
 
     const guardado = await guardarAnalisis(negocio, tecnico);
 

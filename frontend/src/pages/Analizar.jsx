@@ -15,24 +15,41 @@ export default function Analizar() {
   // Enciende la cámara trasera (ideal para fotografiar la pieza).
   async function iniciarCamara() {
     setError(null);
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError(
+        "Tu navegador no permite abrir la cámara aquí (se necesita HTTPS o localhost). " +
+          "Usa el botón 'Subir foto'."
+      );
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } },
         audio: false,
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      // Montamos el <video> primero; el stream se conecta en el useEffect de abajo.
       setCamaraActiva(true);
     } catch (e) {
-      setError(
-        "No se pudo abrir la cámara. Puedes usar el botón 'Subir foto' más abajo. " +
-          "(En el celular la cámara solo funciona con HTTPS.)"
-      );
+      const msg =
+        e.name === "NotAllowedError" || e.name === "SecurityError"
+          ? "Permiso de cámara denegado. Habilítalo en el candado de la barra de direcciones (Configuración del sitio → Cámara) y reintenta."
+          : e.name === "NotFoundError" || e.name === "OverconstrainedError"
+          ? "No se encontró ninguna cámara disponible."
+          : e.name === "NotReadableError"
+          ? "La cámara está siendo usada por otra app (Zoom, Meet, Photo Booth…). Ciérrala y reintenta."
+          : "No se pudo abrir la cámara.";
+      setError(`${msg} También puedes usar 'Subir foto'.`);
     }
   }
+
+  // Conecta el stream al <video> una vez que éste está montado en el DOM.
+  useEffect(() => {
+    if (camaraActiva && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [camaraActiva]);
 
   function detenerCamara() {
     if (streamRef.current) {
@@ -49,6 +66,10 @@ export default function Analizar() {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
+    if (!video.videoWidth || !video.videoHeight) {
+      setError("La cámara aún se está iniciando, espera un segundo y reintenta.");
+      return;
+    }
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0);

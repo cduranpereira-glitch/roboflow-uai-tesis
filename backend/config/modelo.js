@@ -12,18 +12,19 @@ export const ROBOFLOW = {
 };
 
 // ---------------------------------------------------------------------------
-// MÉTRICAS FIJAS DEL MODELO ENTRENADO
+// MÉTRICAS DE EVALUACIÓN DEL MODELO (panel "Metrics" / Test Set de Roboflow)
 // ---------------------------------------------------------------------------
-// Estos son los números con los que se EVALUÓ el modelo durante su
-// entrenamiento en Roboflow. Son fijos (iguales para todas las fotos) y se
-// muestran en la sección "Resultado técnico".
+// IMPORTANTE: estas son las métricas que se ven en Roboflow (web) en el panel
+// "Metrics" → Test Set del modelo. La API pública de Roboflow NO expone estos
+// números (solo expone los del "modelo desplegado", que se calculan distinto y
+// NO coinciden). Por eso se mantienen aquí, a mano.
 //
-// 👉 Camilo: reemplaza estos valores de ejemplo por los reales de tu modelo.
-//    Los encuentras en Roboflow: tu proyecto → pestaña "Versions" → la versión
-//    del modelo → métricas (mAP, Precision, Recall). El "accuracy" general
-//    muchas veces se reporta como mAP@50.
+// 👉 Camilo: si cambias el modelo del workflow, actualiza estos 4 valores con
+//    los del panel "Metrics" del modelo nuevo en Roboflow.
+//
+// Modelo actual: rfdetr-small-t1, versión 7.
 export const METRICAS_MODELO = {
-  nombreModelo: "YOLOv12s (yolo12s)",
+  nombreModelo: "RF-DETR Small (rfdetr-small-t1)",
   version: "7",
   // Métricas de evaluación sobre el Test Set (en porcentaje 0-100):
   mAP: 88.9, // mAP@50
@@ -33,5 +34,5 @@ export const METRICAS_MODELO = {
   // Opcional: fecha de entrenamiento, nº de imágenes, etc.
   imagenesEntrenamiento: null,
   notas:
-    "Métricas de evaluación del modelo entrenado en Roboflow (Test Set).",
+    "Métricas del panel Metrics (Test Set) del modelo en Roboflow.",
 };

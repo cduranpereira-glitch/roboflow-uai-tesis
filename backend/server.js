@@ -26,18 +26,14 @@ app.get("/api/salud", (req, res) => {
   });
 });
 
-// Arma la sección técnica: métricas dinámicas de Roboflow con fallback a las
-// fijas del código (config/modelo.js) si Roboflow no las entrega.
+// Arma la sección técnica. Las métricas (mAP/precision/recall/F1) vienen de
+// config/modelo.js, que son las del panel "Metrics" (Test Set) de Roboflow —
+// la API pública NO las expone, por eso se mantienen a mano. El MODELO en sí
+// (id, arquitectura, versión, parámetros) sí se lee dinámico desde el workflow.
 function construirTecnico(modelo) {
-  const m = modelo?.metricas || {};
   return {
     ...METRICAS_MODELO,
-    mAP: m.mAP ?? METRICAS_MODELO.mAP,
-    precision: m.precision ?? METRICAS_MODELO.precision,
-    recall: m.recall ?? METRICAS_MODELO.recall,
-    f1: m.f1 ?? METRICAS_MODELO.f1,
-    f1Calculado: Boolean(m.f1Calculado),
-    metricasFuente: m.fuente || "valores fijos del código (fallback)",
+    metricasFuente: "Roboflow · panel Metrics (Test Set)",
     modelo,
   };
 }

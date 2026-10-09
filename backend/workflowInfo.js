@@ -53,46 +53,6 @@ async function getWorkflowConfig(ws, id, key) {
   return JSON.parse((await r.json()).workflow.config);
 }
 
-// Lee las métricas de evaluación (mAP, precision, recall, F1) desde la API de
-// la versión del modelo en Roboflow. Estas métricas son del entrenamiento (no
-// de cada foto), por eso no vienen en la respuesta del workflow.
-// El F1 no lo entrega Roboflow: se calcula a partir de precision y recall.
-async function obtenerMetricas(modeloId, key) {
-  // modeloId: "capstone-mia/deteccion-...-7-rfdetr-small-t1"
-  const [ws, rest] = (modeloId || "").split("/");
-  if (!ws || !rest) return null;
-  const version = (rest.match(/-(\d+)-(?:yolo|rfdetr|rtdetr)/i) || [])[1];
-  if (!version) return null;
-  const proyecto = rest.split(`-${version}-`)[0];
-  try {
-    const r = await fetch(
-      `https://api.roboflow.com/${ws}/${proyecto}/${version}?api_key=${key}`
-    );
-    if (!r.ok) return null;
-    const m = (await r.json())?.version?.model || {};
-    const mAP = m.map != null ? parseFloat(m.map) : null;
-    const precision = m.precision != null ? parseFloat(m.precision) : null;
-    const recall = m.recall != null ? parseFloat(m.recall) : null;
-    const f1 =
-      precision && recall
-        ? +((2 * precision * recall) / (precision + recall)).toFixed(2)
-        : null;
-    if (mAP == null && precision == null && recall == null) return null;
-    return {
-      mAP,
-      precision,
-      recall,
-      f1,
-      f1Calculado: true, // F1 no lo da Roboflow; lo calculamos de P y R
-      proyecto,
-      version,
-      fuente: `Roboflow · versión ${version} (modelo desplegado)`,
-    };
-  } catch {
-    return null;
-  }
-}
-
 export async function obtenerInfoModelo() {
   const ahora = Date.now();
   if (cache.info && ahora - cache.ts < TTL_MS) return cache.info;
@@ -102,7 +62,6 @@ export async function obtenerInfoModelo() {
     arquitectura: null,
     version: null,
     parametros: null, // confidence, iou, max_detections, ...
-    metricas: null, // mAP, precision, recall, F1 (dinámicas desde Roboflow)
     fuente: "no disponible",
   };
 
@@ -140,11 +99,6 @@ export async function obtenerInfoModelo() {
             ...interpretar(params.model_id),
             fuente: "Roboflow (default del workflow)",
           });
-        }
-
-        // Métricas de evaluación del modelo (dinámicas desde la API de la versión)
-        if (info.modeloId) {
-          info.metricas = await obtenerMetricas(info.modeloId, key);
         }
       }
     } catch {

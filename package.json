@@ -1,0 +1,13 @@
+{
+  "name": "roboflow-tesis-uai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Wrapper de despliegue: compila el frontend y arranca el backend que lo sirve + la API de Roboflow",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
+    "start": "node backend/server.js"
+  }
+}

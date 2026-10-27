@@ -1,0 +1,18 @@
+# Configuración de despliegue para Render (https://render.com)
+# Al conectar el repo, Render lee este archivo y crea el servicio automáticamente.
+services:
+  - type: web
+    name: roboflow-tesis-uai
+    runtime: node
+    plan: free
+    # Compila el frontend e instala el backend
+    buildCommand: npm run build
+    # Arranca el backend (sirve el frontend compilado + la API)
+    startCommand: npm start
+    envVars:
+      # La API key de Roboflow se configura como secreto en el panel de Render
+      # (sync: false = no se guarda en el repo; la pegas tú en la web de Render).
+      - key: ROBOFLOW_API_KEY
+        sync: false
+      - key: NODE_VERSION
+        value: "20"

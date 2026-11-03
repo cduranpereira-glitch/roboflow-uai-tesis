@@ -10,11 +10,18 @@ export default function Home() {
         piezas de lata) y revisa el historial de análisis.
       </p>
       <div className="home-opciones">
-        <button className="tarjeta" onClick={() => navegar("/analizar")}>
-          <span className="tarjeta-icono">📷</span>
-          <span className="tarjeta-titulo">Analizar</span>
+        <button className="tarjeta" onClick={() => navegar("/rapido")}>
+          <span className="tarjeta-icono">⚡</span>
+          <span className="tarjeta-titulo">Análisis Rápido</span>
           <span className="tarjeta-desc">
-            Toma una foto de la pieza y detecta daños
+            Una foto, un resultado al instante
+          </span>
+        </button>
+        <button className="tarjeta" onClick={() => navegar("/profundo")}>
+          <span className="tarjeta-icono">🔬</span>
+          <span className="tarjeta-titulo">Análisis Profundo</span>
+          <span className="tarjeta-desc">
+            Varias fotos y un veredicto más confiable
           </span>
         </button>
         <button className="tarjeta" onClick={() => navegar("/historial")}>

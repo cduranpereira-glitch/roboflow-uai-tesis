@@ -1,6 +1,7 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Analizar from "./pages/Analizar.jsx";
+import AnalisisProfundo from "./pages/AnalisisProfundo.jsx";
 import Historial from "./pages/Historial.jsx";
 
 export default function App() {
@@ -20,7 +21,8 @@ export default function App() {
       <main className="contenido">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/analizar" element={<Analizar />} />
+          <Route path="/rapido" element={<Analizar />} />
+          <Route path="/profundo" element={<AnalisisProfundo />} />
           <Route path="/historial" element={<Historial />} />
         </Routes>
       </main>

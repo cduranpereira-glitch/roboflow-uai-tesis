@@ -13,6 +13,25 @@ export async function analizarImagen(imagenBase64) {
   return resp.json();
 }
 
+export async function analizarProfundo(imagenes) {
+  const resp = await fetch("/api/analizar-profundo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ imagenes }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error || `Error ${resp.status} en el análisis profundo`);
+  }
+  return resp.json();
+}
+
+export async function obtenerConfig() {
+  const resp = await fetch("/api/config");
+  if (!resp.ok) throw new Error("No se pudo cargar la configuración");
+  return resp.json();
+}
+
 export async function obtenerHistorial() {
   const resp = await fetch("/api/historial");
   if (!resp.ok) throw new Error("No se pudo cargar el historial");

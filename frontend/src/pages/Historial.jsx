@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { obtenerHistorial, leerAnalisis } from "../api.js";
 
-// Convierte "analisis_2026-10-04_14-23-05.txt" en algo legible.
+// Convierte "analisis_2026-10-04_14-23-05_rapido.txt" en algo legible.
 function nombreLegible(archivo) {
   const m = archivo.match(/analisis_(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})/);
   if (!m) return archivo;
   const [, a, mes, d, h, min, s] = m;
   return `${d}/${mes}/${a} · ${h}:${min}:${s}`;
+}
+
+// "rapido" | "profundo" | null según el sufijo del nombre.
+function modoDe(archivo) {
+  if (archivo.includes("_profundo")) return "profundo";
+  if (archivo.includes("_rapido")) return "rapido";
+  return null;
 }
 
 export default function Historial() {
@@ -59,14 +66,24 @@ export default function Historial() {
         <p className="vacio">Aún no hay análisis guardados.</p>
       )}
       <ul className="lista-historial">
-        {archivos.map((archivo) => (
-          <li key={archivo}>
-            <button className="item-historial" onClick={() => abrir(archivo)}>
-              <span className="item-fecha">{nombreLegible(archivo)}</span>
-              <span className="item-flecha">›</span>
-            </button>
-          </li>
-        ))}
+        {archivos.map((archivo) => {
+          const modo = modoDe(archivo);
+          return (
+            <li key={archivo}>
+              <button className="item-historial" onClick={() => abrir(archivo)}>
+                <span className="item-fecha">
+                  {nombreLegible(archivo)}
+                  {modo && (
+                    <span className={`modo-tag modo-${modo}`}>
+                      {modo === "profundo" ? "Profundo" : "Rápido"}
+                    </span>
+                  )}
+                </span>
+                <span className="item-flecha">›</span>
+              </button>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

@@ -46,6 +46,9 @@ export function agregarProfundo(negocios) {
     sinClasificacion: Boolean(n.sinClasificacion),
     tipos: n.tiposDeDano || [],
     cantidad: n.cantidadDanos || 0,
+    // Imagen anotada (con el daño marcado) para poder verla en el resultado.
+    // Va en la respuesta HTTP (en memoria); NO se escribe en el .txt.
+    imagenAnotadaBase64: n.imagenAnotadaBase64 || null,
   }));
 
   return { veredicto, votosConDano, totalFotos, umbralDano, tipos, porFoto };

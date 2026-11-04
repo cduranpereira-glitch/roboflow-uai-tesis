@@ -64,7 +64,13 @@ export default function AnalisisProfundo() {
   }
 
   if (resultado) {
-    return <ResultadoProfundo datos={resultado} onReiniciar={reiniciar} />;
+    return (
+      <ResultadoProfundo
+        datos={resultado}
+        fotos={fotos}
+        onReiniciar={reiniciar}
+      />
+    );
   }
 
   return (
@@ -169,10 +175,22 @@ function Miniaturas({ fotos, numFotos, onQuitar }) {
   );
 }
 
-function ResultadoProfundo({ datos, onReiniciar }) {
+function ResultadoProfundo({ datos, fotos = [], onReiniciar }) {
   const { agregado, tecnico, archivo } = datos;
   const { veredicto, votosConDano, totalFotos, umbralDano, tipos, porFoto } =
     agregado;
+
+  // Foto abierta en el visor: { indice, src, titulo } | null
+  const [visor, setVisor] = useState(null);
+
+  // Devuelve la imagen a mostrar para la foto i (1-based): primero la anotada
+  // (con el daño marcado) que llegó del backend; si no vino, la original en memoria.
+  function imagenDeFoto(f) {
+    if (f.imagenAnotadaBase64) {
+      return `data:image/jpeg;base64,${f.imagenAnotadaBase64}`;
+    }
+    return fotos[f.foto - 1] || null;
+  }
 
   const badge =
     veredicto === "dañada"
@@ -222,21 +240,42 @@ function ResultadoProfundo({ datos, onReiniciar }) {
           </>
         )}
 
-        {/* Detalle por foto */}
+        {/* Detalle por foto — toca una para ver la imagen con el resultado */}
         <p className="dato">
-          <strong>Detalle por foto:</strong>
+          <strong>Detalle por foto:</strong>{" "}
+          <span className="ubic">(toca una para ver la imagen)</span>
         </p>
         <ul className="lista-fotos">
-          {porFoto.map((f) => (
-            <li key={f.foto} className={f.dañada ? "foto-dano" : "foto-ok"}>
-              Foto {f.foto}:{" "}
-              {f.dañada
-                ? f.sinClasificacion
-                  ? "daño (sin clasificación)"
-                  : `daño — ${f.tipos.join(", ") || "s/d"}`
-                : "sin daño"}
-            </li>
-          ))}
+          {porFoto.map((f) => {
+            const src = imagenDeFoto(f);
+            const estado = f.dañada
+              ? f.sinClasificacion
+                ? "daño (sin clasificación)"
+                : `daño — ${f.tipos.join(", ") || "s/d"}`
+              : "sin daño";
+            return (
+              <li key={f.foto} className={f.dañada ? "foto-dano" : "foto-ok"}>
+                <button
+                  type="button"
+                  className="foto-item"
+                  onClick={() =>
+                    src && setVisor({ src, titulo: `Foto ${f.foto} — ${estado}` })
+                  }
+                  disabled={!src}
+                >
+                  {src ? (
+                    <img className="foto-miniatura" src={src} alt={`Foto ${f.foto}`} />
+                  ) : (
+                    <span className="foto-miniatura sin-img">—</span>
+                  )}
+                  <span className="foto-texto">
+                    Foto {f.foto}: {estado}
+                  </span>
+                  {src && <span className="foto-lupa">🔍</span>}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </section>
 
@@ -246,6 +285,25 @@ function ResultadoProfundo({ datos, onReiniciar }) {
       <button className="boton-primario" onClick={onReiniciar}>
         Hacer otro análisis profundo
       </button>
+
+      {/* Visor de imagen (se abre al tocar una foto) */}
+      {visor && (
+        <div className="visor-fondo" onClick={() => setVisor(null)}>
+          <div className="visor-caja" onClick={(e) => e.stopPropagation()}>
+            <div className="visor-barra">
+              <span className="visor-titulo">{visor.titulo}</span>
+              <button
+                className="visor-cerrar"
+                onClick={() => setVisor(null)}
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <img className="visor-img" src={visor.src} alt={visor.titulo} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

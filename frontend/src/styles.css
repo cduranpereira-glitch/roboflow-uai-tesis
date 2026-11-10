@@ -355,6 +355,58 @@ body {
 }
 
 /* ===== Análisis Profundo ===== */
+
+/* Botones de la cámara en una fila (ahorra alto vertical en el móvil) */
+.camara-acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.camara-acciones .boton-primario {
+  flex: 1;
+  margin-top: 0;
+}
+.camara-acciones .boton-secundario {
+  flex: 0 0 auto;
+  width: auto;
+  margin-top: 0;
+}
+
+/* Cámara abierta: comprime todo para que entre sin scroll (iPhone/Safari).
+   Oculta el texto largo, achica título y miniaturas, y limita el alto del
+   video con unidades de viewport (svh = viewport "chico", el peor caso). */
+.profundo.camara-abierta .home-sub {
+  display: none;
+}
+.profundo.camara-abierta .pagina-titulo {
+  font-size: 1.15rem;
+  margin: 0 0 8px;
+}
+.profundo.camara-abierta .miniaturas {
+  margin-top: 0;
+  gap: 6px;
+}
+.profundo.camara-abierta .mini-slot {
+  aspect-ratio: auto;
+  height: 52px;
+  border-radius: 8px;
+}
+.profundo.camara-abierta .mini-num {
+  font-size: 0.95rem;
+}
+.profundo.camara-abierta .progreso-texto {
+  margin: 6px 0;
+}
+.profundo.camara-abierta .camara-video {
+  aspect-ratio: auto;
+  height: 44vh; /* fallback navegadores sin svh */
+  height: 44svh;
+  max-height: 340px;
+  min-height: 200px;
+  width: 100%;
+  object-fit: cover;
+}
+
 .miniaturas {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

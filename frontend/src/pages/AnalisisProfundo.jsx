@@ -74,7 +74,7 @@ export default function AnalisisProfundo() {
   }
 
   return (
-    <div className="profundo">
+    <div className={`profundo ${cam.activa ? "camara-abierta" : ""}`}>
       <h2 className="pagina-titulo">Análisis Profundo</h2>
       <p className="home-sub">
         Toma <strong>{numFotos} fotos</strong> de la pieza desde distintos
@@ -91,12 +91,14 @@ export default function AnalisisProfundo() {
       {cam.activa ? (
         <div className="camara-zona">
           <video ref={cam.videoRef} className="camara-video" playsInline muted />
-          <button className="boton-primario" onClick={capturar}>
-            📸 Capturar foto {fotos.length + 1}
-          </button>
-          <button className="boton-secundario" onClick={cam.detener}>
-            Cancelar
-          </button>
+          <div className="camara-acciones">
+            <button className="boton-primario" onClick={capturar}>
+              📸 Capturar foto {fotos.length + 1}
+            </button>
+            <button className="boton-secundario" onClick={cam.detener}>
+              Cancelar
+            </button>
+          </div>
         </div>
       ) : completo ? (
         <>

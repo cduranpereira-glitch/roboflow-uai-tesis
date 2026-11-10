@@ -22,15 +22,15 @@ export const ROBOFLOW = {
 // 👉 Camilo: si cambias el modelo del workflow, actualiza estos 4 valores con
 //    los del panel "Metrics" del modelo nuevo en Roboflow.
 //
-// Modelo actual: rfdetr-small-t1, versión 7.
+// Modelo actual: rfdetr-small-t1, versión 11.
 export const METRICAS_MODELO = {
   nombreModelo: "RF-DETR Small (rfdetr-small-t1)",
-  version: "7",
+  version: "11",
   // Métricas de evaluación sobre el Test Set (en porcentaje 0-100):
-  mAP: 88.9, // mAP@50
-  precision: 90.6,
-  recall: 84.5,
-  f1: 87.2,
+  mAP: 90.1, // mAP@50
+  precision: 96.1,
+  recall: 84.7,
+  f1: 89.7,
   // Opcional: fecha de entrenamiento, nº de imágenes, etc.
   imagenesEntrenamiento: null,
   notas:

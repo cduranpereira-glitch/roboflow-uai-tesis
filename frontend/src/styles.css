@@ -397,14 +397,31 @@ body {
 .profundo.camara-abierta .progreso-texto {
   margin: 6px 0;
 }
+/* El video crece para llenar el alto libre: queda justo encima de los
+   botones, sin espacio muerto abajo, y se adapta a cualquier pantalla. */
+.contenido:has(.profundo.camara-abierta) {
+  display: flex;
+  flex-direction: column;
+}
+.profundo.camara-abierta {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.profundo.camara-abierta .camara-zona {
+  flex: 1;
+  min-height: 0;
+}
 .profundo.camara-abierta .camara-video {
+  flex: 1;
+  min-height: 160px;
   aspect-ratio: auto;
-  height: 44vh; /* fallback navegadores sin svh */
-  height: 44svh;
-  max-height: 340px;
-  min-height: 200px;
   width: 100%;
   object-fit: cover;
+}
+.profundo.camara-abierta .camara-acciones {
+  flex: 0 0 auto;
 }
 
 .miniaturas {
